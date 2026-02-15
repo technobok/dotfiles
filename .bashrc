@@ -18,7 +18,24 @@ export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-ra
 [ -f "$HOME/.fzf_scripts/completion.bash" ] && source "$HOME/.fzf_scripts/completion.bash"
 [ -f "$HOME/.fzf_scripts/key-bindings.bash" ] && source "$HOME/.fzf_scripts/key-bindings.bash"
 
-alias dot="git --git-dir=\$HOME/.dotfiles --work-tree=\$HOME"
+dot() {
+    if [ $# -eq 0 ] || [ "$1" = "help" ]; then
+        echo "dot - bare-repo dotfiles manager (git --git-dir=~/.dotfiles --work-tree=~)"
+        echo ""
+        echo "Usage: dot <git-command> [args...]"
+        echo ""
+        echo "Examples:"
+        echo "  dot status              Show changed dotfiles"
+        echo "  dot diff                Diff working tree vs last commit"
+        echo "  dot add .bashrc         Stage a file"
+        echo "  dot commit -m 'msg'     Commit staged changes"
+        echo "  dot push                Push to remote"
+        echo "  dot log --oneline       View commit history"
+        echo "  dot ls-files            List tracked dotfiles"
+        return 0
+    fi
+    git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"
+}
 
 # devenv + webreports: auto-launch tmux
 if [ "$DOTFILES_ENV" = "devenv" ] || [ "$DOTFILES_ENV" = "webreports" ]; then

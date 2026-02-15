@@ -17,7 +17,25 @@ if status is-interactive
     end
 
     alias n="nvim"
-    alias dot="git --git-dir=\$HOME/.dotfiles --work-tree=\$HOME"
+
+    function dot
+        if test (count $argv) -eq 0 -o "$argv[1]" = "help"
+            echo "dot - bare-repo dotfiles manager (git --git-dir=~/.dotfiles --work-tree=~)"
+            echo ""
+            echo "Usage: dot <git-command> [args...]"
+            echo ""
+            echo "Examples:"
+            echo "  dot status              Show changed dotfiles"
+            echo "  dot diff                Diff working tree vs last commit"
+            echo "  dot add .bashrc         Stage a file"
+            echo "  dot commit -m 'msg'     Commit staged changes"
+            echo "  dot push                Push to remote"
+            echo "  dot log --oneline       View commit history"
+            echo "  dot ls-files            List tracked dotfiles"
+            return 0
+        end
+        git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" $argv
+    end
 
     # devenv: keychain for SSH keys
     if test "$DOTFILES_ENV" = "devenv"
