@@ -44,12 +44,71 @@ dot() {
         echo "  dot diff                Diff working tree vs last commit"
         echo "  dot add .bashrc         Stage a file"
         echo "  dot commit -m 'msg'     Commit staged changes"
+        echo "  dot pull                Pull & auto-backup conflicting files"
         echo "  dot push                Push to remote"
         echo "  dot log --oneline       View commit history"
         echo "  dot ls-files            List tracked dotfiles"
         return 0
     fi
+    if [ "$1" = "pull" ]; then
+        shift
+        _dot_pull "$@"
+        return
+    fi
     git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"
+}
+
+_dot_pull() {
+    local git_cmd="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
+
+    echo "==> Fetching..."
+    $git_cmd fetch "$@"
+
+    local upstream
+    upstream=$($git_cmd rev-parse --abbrev-ref '@{upstream}' 2>/dev/null) || true
+    if [ -z "$upstream" ]; then
+        echo "Error: no upstream branch configured. Run: dot branch -u origin/main"
+        return 1
+    fi
+
+    local incoming
+    incoming=$($git_cmd diff --name-only HEAD.."$upstream")
+    if [ -z "$incoming" ]; then
+        echo "Already up to date."
+        return 0
+    fi
+
+    echo "==> Incoming changes:"
+    while IFS= read -r f; do
+        echo "  $f"
+    done <<< "$incoming"
+
+    local ts backup backed_up=0
+    ts=$(date +%Y%m%d-%H%M%S)
+    backup="$HOME/.dotfiles-backup/$ts"
+
+    echo "==> Backing up existing files..."
+    while IFS= read -r f; do
+        if [ -f "$HOME/$f" ]; then
+            mkdir -p "$backup/$(dirname "$f")"
+            cp "$HOME/$f" "$backup/$f"
+            echo "  Backed up: ~/$f"
+            backed_up=1
+            # Remove untracked files so merge can place new ones
+            if ! $git_cmd ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+                rm "$HOME/$f"
+            fi
+        fi
+    done <<< "$incoming"
+
+    if [ "$backed_up" -eq 1 ]; then
+        echo "  Saved to: $backup"
+    else
+        echo "  No files to back up."
+    fi
+
+    echo "==> Merging..."
+    $git_cmd merge "$upstream"
 }
 
 # Auto-launch tmux

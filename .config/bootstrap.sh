@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # Bootstrap dotfiles bare repo on a new machine.
-# Usage: curl -Lfs https://raw.githubusercontent.com/technobok/dotfiles/master/.config/bootstrap.sh | bash
+# Usage: curl -Lfs https://raw.githubusercontent.com/technobok/dotfiles/main/.config/bootstrap.sh | bash
 #   or:  bash bootstrap.sh [repo-url]
 
 set -euo pipefail
 
 DOTFILES_REPO="${1:-git@github.com:technobok/dotfiles.git}"
 DOTFILES_DIR="$HOME/.dotfiles"
-BACKUP_DIR="$HOME/.dotfiles-backup"
 
 dot() { git --git-dir="$DOTFILES_DIR" --work-tree="$HOME" "$@"; }
 
@@ -16,28 +15,48 @@ if [ -d "$DOTFILES_DIR" ]; then
     exit 1
 fi
 
-echo "Cloning dotfiles into bare repo at $DOTFILES_DIR..."
-git clone --bare "$DOTFILES_REPO" "$DOTFILES_DIR"
+echo "==> Initializing dotfiles bare repo at $DOTFILES_DIR"
+git init --bare "$DOTFILES_DIR"
+dot remote add origin "$DOTFILES_REPO"
+dot config status.showUntrackedFiles no
 
-echo "Backing up existing files to $BACKUP_DIR..."
+echo "==> Fetching from $DOTFILES_REPO"
+dot fetch origin
+dot remote set-head origin --auto 2>/dev/null || true
+
+# Detect default branch
+DEFAULT_BRANCH=$(dot symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||') || true
+: "${DEFAULT_BRANCH:=main}"
+
+echo "==> Installing dotfiles (branch: $DEFAULT_BRANCH)"
+
+# All files from the remote branch
+incoming=$(dot ls-tree -r --name-only "origin/$DEFAULT_BRANCH")
+
+# Back up any existing files (same pattern as dot pull)
+ts=$(date +%Y%m%d-%H%M%S)
+backup="$HOME/.dotfiles-backup/$ts"
 backed_up=0
-dot ls-tree -r --name-only HEAD | while read -r f; do
+
+echo "==> Backing up existing files..."
+while IFS= read -r f; do
     if [ -f "$HOME/$f" ]; then
-        mkdir -p "$BACKUP_DIR/$(dirname "$f")"
-        mv "$HOME/$f" "$BACKUP_DIR/$f"
+        mkdir -p "$backup/$(dirname "$f")"
+        mv "$HOME/$f" "$backup/$f"
+        echo "  Backed up: ~/$f"
         backed_up=1
     fi
-done
-if [ -d "$BACKUP_DIR" ]; then
-    echo "Backed up files to $BACKUP_DIR"
+done <<< "$incoming"
+
+if [ "$backed_up" -eq 1 ]; then
+    echo "  Saved to: $backup"
 else
-    echo "No existing files to back up"
+    echo "  No conflicting files found."
 fi
 
-echo "Checking out dotfiles..."
-dot checkout
-
-dot config status.showUntrackedFiles no
+# Create local branch tracking remote and checkout
+echo "==> Checking out $DEFAULT_BRANCH"
+dot checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
 
 echo ""
 echo "Done! Open a new shell and run 'dot help' to get started."

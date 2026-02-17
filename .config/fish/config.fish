@@ -54,12 +54,68 @@ if status is-interactive
             echo "  dot diff                Diff working tree vs last commit"
             echo "  dot add .bashrc         Stage a file"
             echo "  dot commit -m 'msg'     Commit staged changes"
+            echo "  dot pull                Pull & auto-backup conflicting files"
             echo "  dot push                Push to remote"
             echo "  dot log --oneline       View commit history"
             echo "  dot ls-files            List tracked dotfiles"
             return 0
         end
+        if test "$argv[1]" = pull
+            _dot_pull $argv[2..]
+            return
+        end
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" $argv
+    end
+
+    function _dot_pull
+        set -l git_cmd git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"
+
+        echo "==> Fetching..."
+        $git_cmd fetch $argv
+
+        set -l upstream ($git_cmd rev-parse --abbrev-ref '@{upstream}' 2>/dev/null)
+        if test (count $upstream) -eq 0
+            echo "Error: no upstream branch configured. Run: dot branch -u origin/main"
+            return 1
+        end
+
+        set -l incoming ($git_cmd diff --name-only HEAD.."$upstream")
+        if test (count $incoming) -eq 0
+            echo "Already up to date."
+            return 0
+        end
+
+        echo "==> Incoming changes:"
+        for f in $incoming
+            echo "  $f"
+        end
+
+        set -l ts (date +%Y%m%d-%H%M%S)
+        set -l backup "$HOME/.dotfiles-backup/$ts"
+        set -l backed_up 0
+
+        echo "==> Backing up existing files..."
+        for f in $incoming
+            if test -f "$HOME/$f"
+                mkdir -p "$backup/"(dirname "$f")
+                cp "$HOME/$f" "$backup/$f"
+                echo "  Backed up: ~/$f"
+                set backed_up 1
+                # Remove untracked files so merge can place new ones
+                if not $git_cmd ls-files --error-unmatch "$f" >/dev/null 2>&1
+                    rm "$HOME/$f"
+                end
+            end
+        end
+
+        if test "$backed_up" -eq 1
+            echo "  Saved to: $backup"
+        else
+            echo "  No files to back up."
+        end
+
+        echo "==> Merging..."
+        $git_cmd merge "$upstream"
     end
 
     # Keychain for SSH key management
