@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Bootstrap dotfiles bare repo on a new machine.
-# Usage: curl -Lfs https://raw.githubusercontent.com/technobok/dotfiles/main/.config/bootstrap.sh | bash
-#   or:  bash bootstrap.sh [repo-url]
+# Install dotfiles bare repo on a new machine.
+# Usage: curl -Lfs https://raw.githubusercontent.com/technobok/dotfiles/main/.config/dot/install.sh | bash
+#   or:  bash install.sh [repo-url]
 
 set -euo pipefail
 
@@ -35,7 +35,7 @@ incoming=$(dot ls-tree -r --name-only "origin/$DEFAULT_BRANCH")
 
 # Back up any existing files (same pattern as dot pull)
 ts=$(date +%Y%m%d-%H%M%S)
-backup="$HOME/.dotfiles-backup/$ts"
+backup="$HOME/.config/dot/backup/$ts"
 backed_up=0
 
 echo "==> Backing up existing files..."

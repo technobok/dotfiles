@@ -85,7 +85,7 @@ _dot_pull() {
 
     local ts backup backed_up=0
     ts=$(date +%Y%m%d-%H%M%S)
-    backup="$HOME/.dotfiles-backup/$ts"
+    backup="$HOME/.config/dot/backup/$ts"
 
     echo "==> Backing up existing files..."
     while IFS= read -r f; do

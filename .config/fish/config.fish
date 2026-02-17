@@ -91,7 +91,7 @@ if status is-interactive
         end
 
         set -l ts (date +%Y%m%d-%H%M%S)
-        set -l backup "$HOME/.dotfiles-backup/$ts"
+        set -l backup "$HOME/.config/dot/backup/$ts"
         set -l backed_up 0
 
         echo "==> Backing up existing files..."
