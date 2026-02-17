@@ -2,7 +2,7 @@
 
 if status is-interactive
     # Read ~/.config/env.conf into fish variables (skip comments and blank lines)
-    set -l conf_file ~/.config/dot/env.conf
+    set -l conf_file ~/.config/dotf/env.conf
     if test -f $conf_file
         while read -l line
             string match -rq '^\s*#' -- $line; and continue
@@ -91,7 +91,7 @@ if status is-interactive
         end
 
         set -l ts (date +%Y%m%d-%H%M%S)
-        set -l backup "$HOME/.config/dot/backup/$ts"
+        set -l backup "$HOME/.config/dotf/backup/$ts"
         set -l backed_up 0
 
         echo "==> Backing up existing files..."

@@ -5,8 +5,8 @@ export HISTCONTROL=ignoreboth
 shopt -s checkwinsize
 
 # Load env.conf (bash can source KEY=VALUE natively)
-if [ -f ~/.config/dot/env.conf ]; then
-    eval "$(grep -v '^\s*#' ~/.config/dot/env.conf | grep -v '^\s*$')"
+if [ -f ~/.config/dotf/env.conf ]; then
+    eval "$(grep -v '^\s*#' ~/.config/dotf/env.conf | grep -v '^\s*$')"
 fi
 
 # Defaults for unset variables
@@ -85,7 +85,7 @@ _dotf_pull() {
 
     local ts backup backed_up=0
     ts=$(date +%Y%m%d-%H%M%S)
-    backup="$HOME/.config/dot/backup/$ts"
+    backup="$HOME/.config/dotf/backup/$ts"
 
     echo "==> Backing up existing files..."
     while IFS= read -r f; do

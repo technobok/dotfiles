@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install dotfiles bare repo on a new machine.
-# Usage: curl -Lfs https://raw.githubusercontent.com/technobok/dotfiles/main/.config/dot/install.sh | bash
+# Usage: curl -Lfs https://raw.githubusercontent.com/technobok/dotfiles/main/.config/dotf/install.sh | bash
 #   or:  bash install.sh [repo-url]
 
 set -euo pipefail
@@ -35,7 +35,7 @@ incoming=$(dotf ls-tree -r --name-only "origin/$DEFAULT_BRANCH")
 
 # Back up any existing files (same pattern as dotf pull)
 ts=$(date +%Y%m%d-%H%M%S)
-backup="$HOME/.config/dot/backup/$ts"
+backup="$HOME/.config/dotf/backup/$ts"
 backed_up=0
 
 echo "==> Backing up existing files..."
@@ -59,9 +59,9 @@ echo "==> Checking out $DEFAULT_BRANCH"
 dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
 
 # Create default env.conf if not present
-if [ ! -f "$HOME/.config/dot/env.conf" ]; then
-    cp "$HOME/.config/dot/env.conf.example" "$HOME/.config/dot/env.conf"
-    echo "==> Created ~/.config/dot/env.conf from example (edit to customize)"
+if [ ! -f "$HOME/.config/dotf/env.conf" ]; then
+    cp "$HOME/.config/dotf/env.conf.example" "$HOME/.config/dotf/env.conf"
+    echo "==> Created ~/.config/dotf/env.conf from example (edit to customize)"
 fi
 
 echo ""

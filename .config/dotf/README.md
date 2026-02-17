@@ -5,13 +5,13 @@ Bare-repo dotfiles managed with a `dotf` alias. One set of config files shared a
 ## Quick start (new machine)
 
 ```bash
-curl -Lfs https://raw.githubusercontent.com/technobok/dotfiles/main/.config/dot/install.sh | bash
+curl -Lfs https://raw.githubusercontent.com/technobok/dotfiles/main/.config/dotf/install.sh | bash
 ```
 
 Or if you prefer to inspect first:
 
 ```bash
-curl -LfO https://raw.githubusercontent.com/technobok/dotfiles/main/.config/dot/install.sh
+curl -LfO https://raw.githubusercontent.com/technobok/dotfiles/main/.config/dotf/install.sh
 less install.sh
 bash install.sh
 ```
@@ -24,7 +24,7 @@ The install script:
 
 1. Initializes a **bare** git repo at `~/.dotfiles`
 2. Fetches and checks out files directly into `$HOME` (e.g. `~/.bashrc`, `~/.config/fish/config.fish`)
-3. If any files conflict, backs them up to `~/.config/dot/backup/<timestamp>/` before overwriting
+3. If any files conflict, backs them up to `~/.config/dotf/backup/<timestamp>/` before overwriting
 4. Sets `status.showUntrackedFiles no` so `dotf status` only shows tracked dotfiles, not every file in `$HOME`
 
 After checkout, the shell configs define a `dotf` function that wraps git with the bare repo:
@@ -57,10 +57,10 @@ dotf ls-files
 
 ## Per-host configuration
 
-The install script creates `~/.config/dot/env.conf` from the example. Edit it for your environment:
+The install script creates `~/.config/dotf/env.conf` from the example. Edit it for your environment:
 
 ```bash
-vim ~/.config/dot/env.conf
+vim ~/.config/dotf/env.conf
 ```
 
 | Key | Default | Description |
@@ -77,7 +77,7 @@ vim ~/.config/dot/env.conf
 Remove the bare repo and backups. Config files stay in place:
 
 ```bash
-rm -rf ~/.dotfiles ~/.config/dot/backup
+rm -rf ~/.dotfiles ~/.config/dotf/backup
 ```
 
 ## What's tracked
@@ -87,7 +87,7 @@ rm -rf ~/.dotfiles ~/.config/dot/backup
 .config/fish/config.fish        # fish config
 .config/nvim/init.lua           # neovim config
 .config/tmux/tmux.conf          # tmux config (XDG, requires tmux >= 3.1)
-.config/dot/env.conf.example    # per-host config template
-.config/dot/install.sh          # install script
-.config/dot/README.md           # this file
+.config/dotf/env.conf.example    # per-host config template
+.config/dotf/install.sh          # install script
+.config/dotf/README.md           # this file
 ```
