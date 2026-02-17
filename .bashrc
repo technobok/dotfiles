@@ -33,32 +33,32 @@ export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-ra
 [ -f "$HOME/.fzf_scripts/completion.bash" ] && source "$HOME/.fzf_scripts/completion.bash"
 [ -f "$HOME/.fzf_scripts/key-bindings.bash" ] && source "$HOME/.fzf_scripts/key-bindings.bash"
 
-dot() {
+dotf() {
     if [ $# -eq 0 ] || [ "$1" = "help" ]; then
-        echo "dot - bare-repo dotfiles manager (git --git-dir=~/.dotfiles --work-tree=~)"
+        echo "dotf - bare-repo dotfiles manager (git --git-dir=~/.dotfiles --work-tree=~)"
         echo ""
-        echo "Usage: dot <git-command> [args...]"
+        echo "Usage: dotf <git-command> [args...]"
         echo ""
         echo "Examples:"
-        echo "  dot status              Show changed dotfiles"
-        echo "  dot diff                Diff working tree vs last commit"
-        echo "  dot add .bashrc         Stage a file"
-        echo "  dot commit -m 'msg'     Commit staged changes"
-        echo "  dot pull                Pull & auto-backup conflicting files"
-        echo "  dot push                Push to remote"
-        echo "  dot log --oneline       View commit history"
-        echo "  dot ls-files            List tracked dotfiles"
+        echo "  dotf status              Show changed dotfiles"
+        echo "  dotf diff                Diff working tree vs last commit"
+        echo "  dotf add .bashrc         Stage a file"
+        echo "  dotf commit -m 'msg'     Commit staged changes"
+        echo "  dotf pull                Pull & auto-backup conflicting files"
+        echo "  dotf push                Push to remote"
+        echo "  dotf log --oneline       View commit history"
+        echo "  dotf ls-files            List tracked dotfiles"
         return 0
     fi
     if [ "$1" = "pull" ]; then
         shift
-        _dot_pull "$@"
+        _dotf_pull "$@"
         return
     fi
     git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"
 }
 
-_dot_pull() {
+_dotf_pull() {
     local git_cmd="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
     echo "==> Fetching..."
@@ -67,7 +67,7 @@ _dot_pull() {
     local upstream
     upstream=$($git_cmd rev-parse --abbrev-ref '@{upstream}' 2>/dev/null) || true
     if [ -z "$upstream" ]; then
-        echo "Error: no upstream branch configured. Run: dot branch -u origin/main"
+        echo "Error: no upstream branch configured. Run: dotf branch -u origin/main"
         return 1
     fi
 

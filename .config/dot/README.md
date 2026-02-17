@@ -1,6 +1,6 @@
 # dotfiles
 
-Bare-repo dotfiles managed with a `dot` alias. One set of config files shared across the host and Docker dev environments.
+Bare-repo dotfiles managed with a `dotf` alias. One set of config files shared across the host and Docker dev environments.
 
 ## Quick start (new machine)
 
@@ -16,7 +16,7 @@ less install.sh
 bash install.sh
 ```
 
-Then open a new shell. The `dot` command is available in both bash and fish.
+Then open a new shell. The `dotf` command is available in both bash and fish.
 
 ## How it works
 
@@ -25,34 +25,34 @@ The install script:
 1. Initializes a **bare** git repo at `~/.dotfiles`
 2. Fetches and checks out files directly into `$HOME` (e.g. `~/.bashrc`, `~/.config/fish/config.fish`)
 3. If any files conflict, backs them up to `~/.config/dot/backup/<timestamp>/` before overwriting
-4. Sets `status.showUntrackedFiles no` so `dot status` only shows tracked dotfiles, not every file in `$HOME`
+4. Sets `status.showUntrackedFiles no` so `dotf status` only shows tracked dotfiles, not every file in `$HOME`
 
-After checkout, the shell configs define a `dot` function that wraps git with the bare repo:
+After checkout, the shell configs define a `dotf` function that wraps git with the bare repo:
 
 ```
-dot status        = git --git-dir=~/.dotfiles --work-tree=~ status
-dot add .bashrc   = git --git-dir=~/.dotfiles --work-tree=~ add .bashrc
+dotf status        = git --git-dir=~/.dotfiles --work-tree=~ status
+dotf add .bashrc   = git --git-dir=~/.dotfiles --work-tree=~ add .bashrc
 ```
 
-Run `dot help` for a quick reference.
+Run `dotf help` for a quick reference.
 
 ## Daily usage
 
 ```bash
 # See what changed
-dot status
-dot diff
+dotf status
+dotf diff
 
 # Pull updates (auto-backs up conflicting files)
-dot pull
+dotf pull
 
 # Commit a change
-dot add .bashrc
-dot commit -m "update bashrc"
-dot push
+dotf add .bashrc
+dotf commit -m "update bashrc"
+dotf push
 
 # See tracked files
-dot ls-files
+dotf ls-files
 ```
 
 ## Per-host configuration

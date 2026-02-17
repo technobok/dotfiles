@@ -43,31 +43,31 @@ if status is-interactive
 
     alias n="nvim"
 
-    function dot
+    function dotf
         if test (count $argv) -eq 0 -o "$argv[1]" = "help"
-            echo "dot - bare-repo dotfiles manager (git --git-dir=~/.dotfiles --work-tree=~)"
+            echo "dotf - bare-repo dotfiles manager (git --git-dir=~/.dotfiles --work-tree=~)"
             echo ""
-            echo "Usage: dot <git-command> [args...]"
+            echo "Usage: dotf <git-command> [args...]"
             echo ""
             echo "Examples:"
-            echo "  dot status              Show changed dotfiles"
-            echo "  dot diff                Diff working tree vs last commit"
-            echo "  dot add .bashrc         Stage a file"
-            echo "  dot commit -m 'msg'     Commit staged changes"
-            echo "  dot pull                Pull & auto-backup conflicting files"
-            echo "  dot push                Push to remote"
-            echo "  dot log --oneline       View commit history"
-            echo "  dot ls-files            List tracked dotfiles"
+            echo "  dotf status              Show changed dotfiles"
+            echo "  dotf diff                Diff working tree vs last commit"
+            echo "  dotf add .bashrc         Stage a file"
+            echo "  dotf commit -m 'msg'     Commit staged changes"
+            echo "  dotf pull                Pull & auto-backup conflicting files"
+            echo "  dotf push                Push to remote"
+            echo "  dotf log --oneline       View commit history"
+            echo "  dotf ls-files            List tracked dotfiles"
             return 0
         end
         if test "$argv[1]" = pull
-            _dot_pull $argv[2..]
+            _dotf_pull $argv[2..]
             return
         end
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" $argv
     end
 
-    function _dot_pull
+    function _dotf_pull
         set -l git_cmd git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"
 
         echo "==> Fetching..."
@@ -75,7 +75,7 @@ if status is-interactive
 
         set -l upstream ($git_cmd rev-parse --abbrev-ref '@{upstream}' 2>/dev/null)
         if test (count $upstream) -eq 0
-            echo "Error: no upstream branch configured. Run: dot branch -u origin/main"
+            echo "Error: no upstream branch configured. Run: dotf branch -u origin/main"
             return 1
         end
 

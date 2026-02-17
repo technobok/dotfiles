@@ -8,7 +8,7 @@ set -euo pipefail
 DOTFILES_REPO="${1:-git@github.com:technobok/dotfiles.git}"
 DOTFILES_DIR="$HOME/.dotfiles"
 
-dot() { git --git-dir="$DOTFILES_DIR" --work-tree="$HOME" "$@"; }
+dotf() { git --git-dir="$DOTFILES_DIR" --work-tree="$HOME" "$@"; }
 
 if [ -d "$DOTFILES_DIR" ]; then
     echo "Error: $DOTFILES_DIR already exists. Remove it first."
@@ -17,23 +17,23 @@ fi
 
 echo "==> Initializing dotfiles bare repo at $DOTFILES_DIR"
 git init --bare "$DOTFILES_DIR"
-dot remote add origin "$DOTFILES_REPO"
-dot config status.showUntrackedFiles no
+dotf remote add origin "$DOTFILES_REPO"
+dotf config status.showUntrackedFiles no
 
 echo "==> Fetching from $DOTFILES_REPO"
-dot fetch origin
-dot remote set-head origin --auto 2>/dev/null || true
+dotf fetch origin
+dotf remote set-head origin --auto 2>/dev/null || true
 
 # Detect default branch
-DEFAULT_BRANCH=$(dot symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||') || true
+DEFAULT_BRANCH=$(dotf symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||') || true
 : "${DEFAULT_BRANCH:=main}"
 
 echo "==> Installing dotfiles (branch: $DEFAULT_BRANCH)"
 
 # All files from the remote branch
-incoming=$(dot ls-tree -r --name-only "origin/$DEFAULT_BRANCH")
+incoming=$(dotf ls-tree -r --name-only "origin/$DEFAULT_BRANCH")
 
-# Back up any existing files (same pattern as dot pull)
+# Back up any existing files (same pattern as dotf pull)
 ts=$(date +%Y%m%d-%H%M%S)
 backup="$HOME/.config/dot/backup/$ts"
 backed_up=0
@@ -56,7 +56,7 @@ fi
 
 # Create local branch tracking remote and checkout
 echo "==> Checking out $DEFAULT_BRANCH"
-dot checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
 
 # Create default env.conf if not present
 if [ ! -f "$HOME/.config/dot/env.conf" ]; then
@@ -65,4 +65,4 @@ if [ ! -f "$HOME/.config/dot/env.conf" ]; then
 fi
 
 echo ""
-echo "Done! Open a new shell and run 'dot help' to get started."
+echo "Done! Open a new shell and run 'dotf help' to get started."
