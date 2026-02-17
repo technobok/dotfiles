@@ -1,5 +1,23 @@
 -- ~/.config/nvim/init.lua
 
+-- Read a value from ~/.config/env.conf
+local function read_conf(key)
+    local conf = vim.fn.expand("~/.config/env.conf")
+    local f = io.open(conf, "r")
+    if not f then return nil end
+    for line in f:lines() do
+        if not line:match("^%s*#") and not line:match("^%s*$") then
+            local k, v = line:match("^([^=]+)=(.*)")
+            if k == key then
+                f:close()
+                return v
+            end
+        end
+    end
+    f:close()
+    return nil
+end
+
 -- General Settings
 vim.o.tabstop = 4
 vim.o.softtabstop = 4
@@ -121,21 +139,19 @@ require("lazy").setup({
         -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
         lazy = false,
     },
-    {
+    read_conf("GEMINI_NVIM") == "true" and {
         "marcinjahn/gemini-cli.nvim",
         cmd = "Gemini",
-        -- Example key mappings for common actions:
         keys = {
             { "<leader>a/", "<cmd>Gemini toggle<cr>", desc = "Toggle Gemini CLI" },
             { "<leader>aa", "<cmd>Gemini ask<cr>", desc = "Ask Gemini", mode = { "n", "v" } },
             { "<leader>af", "<cmd>Gemini add_file<cr>", desc = "Add File" },
-
         },
         dependencies = {
             "folke/snacks.nvim",
         },
         config = true,
-    },
+    } or nil,
         
     -- Enable the automatic update checker
     checker = { 

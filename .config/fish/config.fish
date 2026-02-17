@@ -1,9 +1,34 @@
 # ~/.config/fish/config.fish
-# Unified dotfiles config. Set DOTFILES_ENV to: host, devai, devenv, webreports
 
 if status is-interactive
+    # Read ~/.config/env.conf into fish variables (skip comments and blank lines)
+    set -l conf_file ~/.config/env.conf
+    if test -f $conf_file
+        while read -l line
+            string match -rq '^\s*#' -- $line; and continue
+            string match -rq '^\s*$' -- $line; and continue
+            set -l key (string replace -r '=.*' '' -- $line)
+            set -l val (string replace -r '^[^=]*=' '' -- $line)
+            set -g $key $val
+        end <$conf_file
+    end
+
+    # Defaults for unset variables
+    set -q AUTOSTART_TMUX; or set -g AUTOSTART_TMUX true
+    set -q TMUX_SESSION_NAME; or set -g TMUX_SESSION_NAME main
+    set -q SETUP_KEYCHAIN; or set -g SETUP_KEYCHAIN false
+    set -q KEYCHAIN_KEYS; or set -g KEYCHAIN_KEYS ~/.ssh/id_rsa_github
+
+    # PATH
     fish_add_path /opt/nvim-linux-x86_64/bin
     fish_add_path ~/.local/bin
+
+    # Extra PATH entries from config (colon-separated)
+    if set -q EXTRA_PATH; and test -n "$EXTRA_PATH"
+        for p in (string split ':' -- $EXTRA_PATH)
+            fish_add_path $p
+        end
+    end
 
     # fzf integration
     fzf_key_bindings
@@ -37,19 +62,17 @@ if status is-interactive
         git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" $argv
     end
 
-    # devenv: keychain for SSH keys
-    if test "$DOTFILES_ENV" = "devenv"
-        keychain --eval ~/.ssh/id_rsa_github | source
-        set -l keychain_env "$HOME/.keychain/(hostname)-fish"
+    # Keychain for SSH key management
+    if test "$SETUP_KEYCHAIN" = true
+        keychain --eval $KEYCHAIN_KEYS | source
+        set -l keychain_env "$HOME/.keychain/"(hostname)"-fish"
         if test -f "$keychain_env"
             source "$keychain_env"
         end
     end
 
-    # devenv + webreports: auto-launch tmux
-    if test "$DOTFILES_ENV" = "devenv" -o "$DOTFILES_ENV" = "webreports"
-        if not set -q TMUX
-            tmux attach-session -t main; or tmux new-session -s main
-        end
+    # Auto-launch tmux
+    if test "$AUTOSTART_TMUX" = true; and not set -q TMUX
+        tmux attach-session -t $TMUX_SESSION_NAME; or tmux new-session -s $TMUX_SESSION_NAME
     end
 end
