@@ -2,7 +2,7 @@
 
 if status is-interactive
     # Read ~/.config/env.conf into fish variables (skip comments and blank lines)
-    set -l conf_file ~/.config/env.conf
+    set -l conf_file ~/.config/dot/env.conf
     if test -f $conf_file
         while read -l line
             string match -rq '^\s*#' -- $line; and continue

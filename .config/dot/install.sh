@@ -58,5 +58,11 @@ fi
 echo "==> Checking out $DEFAULT_BRANCH"
 dot checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
 
+# Create default env.conf if not present
+if [ ! -f "$HOME/.config/dot/env.conf" ]; then
+    cp "$HOME/.config/dot/env.conf.example" "$HOME/.config/dot/env.conf"
+    echo "==> Created ~/.config/dot/env.conf from example (edit to customize)"
+fi
+
 echo ""
 echo "Done! Open a new shell and run 'dot help' to get started."

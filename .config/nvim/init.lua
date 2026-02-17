@@ -1,8 +1,8 @@
 -- ~/.config/nvim/init.lua
 
--- Read a value from ~/.config/env.conf
+-- Read a value from ~/.config/dot/env.conf
 local function read_conf(key)
-    local conf = vim.fn.expand("~/.config/env.conf")
+    local conf = vim.fn.expand("~/.config/dot/env.conf")
     local f = io.open(conf, "r")
     if not f then return nil end
     for line in f:lines() do

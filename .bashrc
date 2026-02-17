@@ -5,8 +5,8 @@ export HISTCONTROL=ignoreboth
 shopt -s checkwinsize
 
 # Load env.conf (bash can source KEY=VALUE natively)
-if [ -f ~/.config/env.conf ]; then
-    eval "$(grep -v '^\s*#' ~/.config/env.conf | grep -v '^\s*$')"
+if [ -f ~/.config/dot/env.conf ]; then
+    eval "$(grep -v '^\s*#' ~/.config/dot/env.conf | grep -v '^\s*$')"
 fi
 
 # Defaults for unset variables

@@ -57,10 +57,10 @@ dot ls-files
 
 ## Per-host configuration
 
-Copy the example config and adjust for your environment:
+The install script creates `~/.config/dot/env.conf` from the example. Edit it for your environment:
 
 ```bash
-cp ~/.config/env.conf.example ~/.config/env.conf
+vim ~/.config/dot/env.conf
 ```
 
 | Key | Default | Description |
@@ -87,7 +87,7 @@ rm -rf ~/.dotfiles ~/.config/dot/backup
 .config/fish/config.fish        # fish config
 .config/nvim/init.lua           # neovim config
 .config/tmux/tmux.conf          # tmux config (XDG, requires tmux >= 3.1)
-.config/env.conf.example        # per-host config template
+.config/dot/env.conf.example    # per-host config template
 .config/dot/install.sh          # install script
 .config/dot/README.md           # this file
 ```
