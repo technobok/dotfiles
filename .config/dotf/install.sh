@@ -7,6 +7,7 @@ set -euo pipefail
 
 DOTFILES_REPO="${1:-git@github.com:technobok/dotfiles.git}"
 DOTFILES_DIR="$HOME/.dotfiles"
+BACKUP="$HOME/.config/dotf/backup/$(date +%Y%m%d-%H%M%S)"
 
 dotf() { git --git-dir="$DOTFILES_DIR" --work-tree="$HOME" "$@"; }
 
@@ -15,48 +16,37 @@ if [ -d "$DOTFILES_DIR" ]; then
     exit 1
 fi
 
-echo "==> Initializing dotfiles bare repo at $DOTFILES_DIR"
+echo "==> Initializing bare repo at $DOTFILES_DIR"
 git init --bare "$DOTFILES_DIR"
 dotf remote add origin "$DOTFILES_REPO"
 dotf config status.showUntrackedFiles no
-
-echo "==> Fetching from $DOTFILES_REPO"
 dotf fetch origin
 dotf remote set-head origin --auto 2>/dev/null || true
 
-# Detect default branch
 DEFAULT_BRANCH=$(dotf symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||') || true
 : "${DEFAULT_BRANCH:=main}"
 
-echo "==> Checking out $DEFAULT_BRANCH"
-if ! checkout_err=$(dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH" 2>&1); then
-    # Extract conflicting filenames (git indents them with a tab)
-    conflicting=$(echo "$checkout_err" | sed -n $'s/^\t//p')
-
-    if [ -z "$conflicting" ]; then
-        echo "$checkout_err" >&2
-        exit 1
+echo "==> Backing up conflicting files..."
+for f in $(dotf ls-tree -r --name-only "origin/$DEFAULT_BRANCH"); do
+    if [ -e "$HOME/$f" ]; then
+        mkdir -p "$BACKUP/$(dirname "$f")"
+        mv "$HOME/$f" "$BACKUP/$f"
+        echo "  ~/$f"
     fi
+done
 
-    ts=$(date +%Y%m%d-%H%M%S)
-    backup="$HOME/.config/dotf/backup/$ts"
-
-    echo "==> Backing up conflicting files..."
-    while IFS= read -r f; do
-        mkdir -p "$backup/$(dirname "$f")"
-        mv "$HOME/$f" "$backup/$f"
-        echo "  Backed up: ~/$f"
-    done <<< "$conflicting"
-    echo "  Saved to: $backup"
-
-    echo "==> Retrying checkout..."
-    dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+if [ -d "$BACKUP" ]; then
+    echo "  Saved to: $BACKUP"
+else
+    echo "  None found."
 fi
 
-# Create default env.conf if not present
+echo "==> Checking out $DEFAULT_BRANCH"
+dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+
 if [ ! -f "$HOME/.config/dotf/env.conf" ]; then
     cp "$HOME/.config/dotf/env.conf.example" "$HOME/.config/dotf/env.conf"
-    echo "==> Created ~/.config/dotf/env.conf from example (edit to customize)"
+    echo "==> Created ~/.config/dotf/env.conf (edit to customize)"
 fi
 
 echo ""
