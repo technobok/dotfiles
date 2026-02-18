@@ -16,18 +16,12 @@ if [ -d "$DOTFILES_DIR" ]; then
     exit 1
 fi
 
-echo "==> Initializing bare repo at $DOTFILES_DIR"
-git init --bare "$DOTFILES_DIR"
-dotf remote add origin "$DOTFILES_REPO"
+echo "==> Cloning bare repo into $DOTFILES_DIR"
+git clone --bare "$DOTFILES_REPO" "$DOTFILES_DIR"
 dotf config status.showUntrackedFiles no
-dotf fetch origin
-dotf remote set-head origin --auto 2>/dev/null || true
-
-DEFAULT_BRANCH=$(dotf symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||') || true
-: "${DEFAULT_BRANCH:=main}"
 
 echo "==> Backing up conflicting files..."
-for f in $(dotf ls-tree -r --name-only "origin/$DEFAULT_BRANCH"); do
+for f in $(dotf ls-tree -r --name-only HEAD); do
     if [ -e "$HOME/$f" ]; then
         mkdir -p "$BACKUP/$(dirname "$f")"
         mv "$HOME/$f" "$BACKUP/$f"
@@ -41,8 +35,8 @@ else
     echo "  None found."
 fi
 
-echo "==> Checking out $DEFAULT_BRANCH"
-dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+echo "==> Checking out"
+dotf checkout
 
 if [ ! -f "$HOME/.config/dotf/env.conf" ]; then
     cp "$HOME/.config/dotf/env.conf.example" "$HOME/.config/dotf/env.conf"
