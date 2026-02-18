@@ -28,28 +28,30 @@ dotf remote set-head origin --auto 2>/dev/null || true
 DEFAULT_BRANCH=$(dotf symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||') || true
 : "${DEFAULT_BRANCH:=main}"
 
-echo "==> Installing dotfiles (branch: $DEFAULT_BRANCH)"
+echo "==> Checking out $DEFAULT_BRANCH"
+if ! checkout_err=$(dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH" 2>&1); then
+    # Extract conflicting filenames (git indents them with a tab)
+    conflicting=$(echo "$checkout_err" | sed -n $'s/^\t//p')
 
-# Back up any existing files that would conflict with checkout
-ts=$(date +%Y%m%d-%H%M%S)
-backup="$HOME/.config/dotf/backup/$ts"
-backed_up=0
+    if [ -z "$conflicting" ]; then
+        echo "$checkout_err" >&2
+        exit 1
+    fi
 
-dotf ls-tree -r --name-only "origin/$DEFAULT_BRANCH" | while IFS= read -r f; do
-    if [ -e "$HOME/$f" ]; then
+    ts=$(date +%Y%m%d-%H%M%S)
+    backup="$HOME/.config/dotf/backup/$ts"
+
+    echo "==> Backing up conflicting files..."
+    while IFS= read -r f; do
         mkdir -p "$backup/$(dirname "$f")"
         mv "$HOME/$f" "$backup/$f"
         echo "  Backed up: ~/$f"
-    fi
-done
-
-if [ -d "$backup" ]; then
+    done <<< "$conflicting"
     echo "  Saved to: $backup"
-fi
 
-# Create local branch tracking remote and checkout
-echo "==> Checking out $DEFAULT_BRANCH"
-dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+    echo "==> Retrying checkout..."
+    dotf checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+fi
 
 # Create default env.conf if not present
 if [ ! -f "$HOME/.config/dotf/env.conf" ]; then
