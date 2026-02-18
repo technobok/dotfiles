@@ -19,6 +19,9 @@ fi
 echo "==> Cloning bare repo into $DOTFILES_DIR"
 git clone --bare "$DOTFILES_REPO" "$DOTFILES_DIR"
 dotf config status.showUntrackedFiles no
+dotf config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+dotf fetch
+dotf branch -u origin/main
 
 echo "==> Checking out"
 if checkout_err=$(dotf checkout 2>&1); then
