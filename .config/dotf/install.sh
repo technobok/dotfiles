@@ -20,30 +20,28 @@ echo "==> Cloning bare repo into $DOTFILES_DIR"
 git clone --bare "$DOTFILES_REPO" "$DOTFILES_DIR"
 dotf config status.showUntrackedFiles no
 
-# List tracked files (no --work-tree needed for ls-tree)
-files=$(git --git-dir="$DOTFILES_DIR" ls-tree -r --name-only HEAD)
-if [ -z "$files" ]; then
-    echo "Error: no tracked files found in repo"
-    exit 1
-fi
+echo "==> Checking out"
+if checkout_err=$(dotf checkout 2>&1); then
+    echo "  No conflicting files."
+else
+    # Parse conflicting filenames from git's error output (tab-indented lines)
+    conflicting=$(echo "$checkout_err" | sed -n 's/^\t//p')
+    if [ -z "$conflicting" ]; then
+        echo "Checkout failed for an unexpected reason:"
+        echo "$checkout_err"
+        exit 1
+    fi
 
-echo "==> Backing up conflicting files..."
-for f in $files; do
-    if [ -e "$HOME/$f" ]; then
+    echo "==> Backing up conflicting files..."
+    while IFS= read -r f; do
         mkdir -p "$BACKUP/$(dirname "$f")"
         mv "$HOME/$f" "$BACKUP/$f"
         echo "  ~/$f"
-    fi
-done
-
-if [ -d "$BACKUP" ]; then
+    done <<< "$conflicting"
     echo "  Saved to: $BACKUP"
-else
-    echo "  None found."
-fi
 
-echo "==> Checking out"
-dotf checkout
+    dotf checkout
+fi
 
 if [ ! -f "$HOME/.config/dotf/env.conf" ]; then
     cp "$HOME/.config/dotf/env.conf.example" "$HOME/.config/dotf/env.conf"

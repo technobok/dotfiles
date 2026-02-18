@@ -22,9 +22,9 @@ Then open a new shell. The `dotf` command is available in both bash and fish.
 
 The install script:
 
-1. Initializes a **bare** git repo at `~/.dotfiles`
-2. Fetches and checks out files directly into `$HOME` (e.g. `~/.bashrc`, `~/.config/fish/config.fish`)
-3. If any files conflict, backs them up to `~/.config/dotf/backup/<timestamp>/` before overwriting
+1. Clones a **bare** git repo into `~/.dotfiles`
+2. Attempts to check out files directly into `$HOME` (e.g. `~/.bashrc`, `~/.config/fish/config.fish`)
+3. If any files conflict, backs them up to `~/.config/dotf/backup/<timestamp>/` and retries
 4. Sets `status.showUntrackedFiles no` so `dotf status` only shows tracked dotfiles, not every file in `$HOME`
 
 After checkout, the shell configs define a `dotf` function that wraps git with the bare repo:
