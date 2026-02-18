@@ -20,8 +20,15 @@ echo "==> Cloning bare repo into $DOTFILES_DIR"
 git clone --bare "$DOTFILES_REPO" "$DOTFILES_DIR"
 dotf config status.showUntrackedFiles no
 
+# List tracked files (no --work-tree needed for ls-tree)
+files=$(git --git-dir="$DOTFILES_DIR" ls-tree -r --name-only HEAD)
+if [ -z "$files" ]; then
+    echo "Error: no tracked files found in repo"
+    exit 1
+fi
+
 echo "==> Backing up conflicting files..."
-for f in $(dotf ls-tree -r --name-only HEAD); do
+for f in $files; do
     if [ -e "$HOME/$f" ]; then
         mkdir -p "$BACKUP/$(dirname "$f")"
         mv "$HOME/$f" "$BACKUP/$f"
