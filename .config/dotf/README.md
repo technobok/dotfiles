@@ -49,6 +49,9 @@ dotf pull
 # Commit a change
 dotf add .bashrc
 dotf commit -m "update bashrc"
+
+# Or stage all changed tracked files & commit in one step
+dotf commit -am "update bashrc"
 dotf push
 
 # See tracked files
