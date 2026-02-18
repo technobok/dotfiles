@@ -41,6 +41,8 @@ if status is-interactive
         set -x FZF_DEFAULT_COMMAND 'rg --files --hidden --glob "!.git/*"'
     end
 
+    set -x TZ Australia/Brisbane
+
     alias n="nvim"
 
     function dotf
