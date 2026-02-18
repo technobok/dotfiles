@@ -30,28 +30,21 @@ DEFAULT_BRANCH=$(dotf symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's
 
 echo "==> Installing dotfiles (branch: $DEFAULT_BRANCH)"
 
-# All files from the remote branch
-incoming=$(dotf ls-tree -r --name-only "origin/$DEFAULT_BRANCH")
-
-# Back up any existing files (same pattern as dotf pull)
+# Back up any existing files that would conflict with checkout
 ts=$(date +%Y%m%d-%H%M%S)
 backup="$HOME/.config/dotf/backup/$ts"
 backed_up=0
 
-echo "==> Backing up existing files..."
-while IFS= read -r f; do
-    if [ -f "$HOME/$f" ]; then
+dotf ls-tree -r --name-only "origin/$DEFAULT_BRANCH" | while IFS= read -r f; do
+    if [ -e "$HOME/$f" ]; then
         mkdir -p "$backup/$(dirname "$f")"
         mv "$HOME/$f" "$backup/$f"
         echo "  Backed up: ~/$f"
-        backed_up=1
     fi
-done <<< "$incoming"
+done
 
-if [ "$backed_up" -eq 1 ]; then
+if [ -d "$backup" ]; then
     echo "  Saved to: $backup"
-else
-    echo "  No conflicting files found."
 fi
 
 # Create local branch tracking remote and checkout
