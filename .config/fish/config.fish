@@ -184,7 +184,7 @@ if status is-interactive
 
     # Keychain for SSH key management
     if test "$SETUP_KEYCHAIN" = true
-        keychain --eval $KEYCHAIN_KEYS | source
+        keychain --eval (string split ' ' -- $KEYCHAIN_KEYS) | source
         set -l keychain_env "$HOME/.keychain/"(hostname)"-fish"
         if test -f "$keychain_env"
             source "$keychain_env"
