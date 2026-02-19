@@ -18,6 +18,7 @@ if status is-interactive
     set -q TMUX_SESSION_NAME; or set -g TMUX_SESSION_NAME main
     set -q SETUP_KEYCHAIN; or set -g SETUP_KEYCHAIN false
     set -q KEYCHAIN_KEYS; or set -g KEYCHAIN_KEYS ~/.ssh/id_rsa_github
+    set -q INSTALL_NVIM; or set -g INSTALL_NVIM true
 
     # PATH
     fish_add_path /opt/nvim-linux-x86_64/bin
@@ -28,6 +29,28 @@ if status is-interactive
         for p in (string split ':' -- $EXTRA_PATH)
             fish_add_path $p
         end
+    end
+
+    # Check for Neovim and offer to install if missing
+    if test "$INSTALL_NVIM" = true; and not test -d /opt/nvim-linux-x86_64
+        echo "Neovim not found in /opt. To install, run: install-nvim"
+        echo "  (sudo credentials required to unpack into /opt)"
+    end
+
+    function install-nvim
+        if test -d /opt/nvim-linux-x86_64
+            echo "Neovim is already installed at /opt/nvim-linux-x86_64"
+            return 0
+        end
+        set -l tmpfile (mktemp /tmp/nvim-linux-x86_64.XXXXXX.tar.gz)
+        echo "==> Downloading Neovim..."
+        curl -Lo $tmpfile https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+        or begin; rm -f $tmpfile; return 1; end
+        echo "==> Installing to /opt (sudo required)..."
+        sudo tar -C /opt -xzf $tmpfile
+        and rm -f $tmpfile
+        and echo "Neovim installed. nvim is now available."
+        or begin; rm -f $tmpfile; echo "Installation failed."; return 1; end
     end
 
     # fzf integration
