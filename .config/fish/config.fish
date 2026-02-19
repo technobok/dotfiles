@@ -1,5 +1,7 @@
 # ~/.config/fish/config.fish
 
+set -g fish_greeting
+
 if status is-interactive
     # Read ~/.config/env.conf into fish variables (skip comments and blank lines)
     set -l conf_file ~/.config/dotf/env.conf
