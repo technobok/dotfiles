@@ -41,6 +41,9 @@ if status is-interactive
         set -x FZF_DEFAULT_COMMAND 'rg --files --hidden --glob "!.git/*"'
     end
 
+    # Solarized Dark: use base00 for visible autosuggestions
+    set -g fish_color_autosuggestion 657b83
+
     set -x TZ Australia/Brisbane
 
     alias n="nvim"
