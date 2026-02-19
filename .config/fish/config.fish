@@ -44,19 +44,20 @@ if status is-interactive
             echo "fzf is already installed."
             return 0
         end
-        set -l version (curl -s "https://api.github.com/repos/junegunn/fzf/releases/latest" | string match -r '"tag_name": "([^"]*)"' | tail -1)
-        if test -z "$version"
+        set -l tag (curl -s "https://api.github.com/repos/junegunn/fzf/releases/latest" | string match -r '"tag_name": "([^"]*)"' | tail -1)
+        if test -z "$tag"
             echo "Error: could not determine latest fzf version."
             return 1
         end
-        set -l url "https://github.com/junegunn/fzf/releases/download/$version/fzf-"(string replace 'v' '' $version)"-linux_amd64.tar.gz"
+        set -l url "https://github.com/junegunn/fzf/releases/download/$tag/fzf-"(string replace 'v' '' $tag)"-linux_amd64.tar.gz"
         set -l tmpfile (mktemp /tmp/fzf.XXXXXX.tar.gz)
-        echo "==> Downloading fzf $version..."
-        curl -Lo $tmpfile $url
+        echo "==> Downloading fzf $tag..."
+        curl -fLo $tmpfile $url
         or begin; rm -f $tmpfile; return 1; end
         echo "==> Installing to ~/.local/bin..."
         mkdir -p ~/.local/bin
         tar -xzf $tmpfile -C ~/.local/bin fzf
+        or begin; rm -f $tmpfile; echo "Installation failed."; return 1; end
         rm -f $tmpfile
         echo "fzf installed. Restart your shell to activate."
     end
@@ -74,7 +75,7 @@ if status is-interactive
         end
         set -l tmpfile (mktemp /tmp/nvim-linux-x86_64.XXXXXX.tar.gz)
         echo "==> Downloading Neovim..."
-        curl -Lo $tmpfile https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+        curl -fLo $tmpfile https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
         or begin; rm -f $tmpfile; return 1; end
         echo "==> Installing to /opt (sudo required)..."
         sudo tar -C /opt -xzf $tmpfile

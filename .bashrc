@@ -53,10 +53,10 @@ install-fzf() {
     url="https://github.com/junegunn/fzf/releases/download/${version}/fzf-${version#v}-linux_amd64.tar.gz"
     tmpfile=$(mktemp /tmp/fzf.XXXXXX.tar.gz)
     echo "==> Downloading fzf ${version}..."
-    curl -Lo "$tmpfile" "$url" || { rm -f "$tmpfile"; return 1; }
+    curl -fLo "$tmpfile" "$url" || { rm -f "$tmpfile"; return 1; }
     echo "==> Installing to ~/.local/bin..."
     mkdir -p ~/.local/bin
-    tar -xzf "$tmpfile" -C ~/.local/bin fzf
+    tar -xzf "$tmpfile" -C ~/.local/bin fzf || { rm -f "$tmpfile"; echo "Installation failed."; return 1; }
     rm -f "$tmpfile"
     echo "fzf installed. Restart your shell to activate."
 }
