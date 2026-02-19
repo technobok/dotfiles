@@ -75,13 +75,20 @@ if status is-interactive
     function _dotf_pull
         set -l git_cmd git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"
 
-        echo "==> Fetching..."
-        $git_cmd fetch $argv
+        # Ensure fetch refspec exists (bare clones omit it)
+        if not $git_cmd config --get remote.origin.fetch >/dev/null 2>&1
+            $git_cmd config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+        end
 
+        echo "==> Fetching..."
+        $git_cmd fetch origin $argv
+
+        # Ensure upstream tracking is set
         set -l upstream ($git_cmd rev-parse --abbrev-ref '@{upstream}' 2>/dev/null)
         if test (count $upstream) -eq 0
-            echo "Error: no upstream branch configured. Run: dotf branch -u origin/main"
-            return 1
+            set -l branch ($git_cmd branch --show-current)
+            $git_cmd branch -u origin/$branch
+            set upstream origin/$branch
         end
 
         set -l incoming ($git_cmd diff --name-only HEAD.."$upstream")
