@@ -139,6 +139,11 @@ _dotf_pull() {
     $git_cmd merge "$upstream"
 }
 
+# Keychain for SSH key management
+if [ "$SETUP_KEYCHAIN" = "true" ]; then
+    eval "$(keychain --eval $KEYCHAIN_KEYS)"
+fi
+
 # Auto-launch tmux
 if [ "$AUTOSTART_TMUX" = "true" ] && [ -z "$TMUX" ]; then
     tmux attach-session -t "$TMUX_SESSION_NAME" || tmux new-session -s "$TMUX_SESSION_NAME"
