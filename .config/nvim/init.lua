@@ -270,14 +270,24 @@ require('Comment').setup()
 
 -- Enable oil filenamager
 require("oil").setup({
+    -- oil will take over directory buffers
+    default_file_explorer = true,
+    columns = {
+        "icon",
+        { "size", align = "right" },
+    },
     -- Other config ...
     keymaps = {
+        ["h"] = { "actions.show_help", mode = "n" },
         ["q"] = "actions.close",
         ["<Esc>"] = "actions.close",
     },
     win_options = {
         winbar = "%{v:lua.require('oil').get_current_dir()}",
     },
+    view_options = {
+        show_hidden = true,
+    }
 })
 
 -- clangd LSP for C dev
