@@ -14,6 +14,8 @@ fi
 : "${TMUX_SESSION_NAME:=main}"
 : "${SETUP_KEYCHAIN:=false}"
 : "${KEYCHAIN_KEYS:=~/.ssh/id_rsa_github}"
+: "${INSTALL_FZF:=true}"
+: "${INSTALL_NVIM:=true}"
 
 # PATH
 export PATH="$HOME/.local/bin:$PATH"
@@ -30,9 +32,34 @@ export LC_ALL=C.UTF-8
 export TERM=xterm-256color
 
 # fzf
-export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}' --height 40% --layout=reverse --border"
-[ -f "$HOME/.fzf_scripts/completion.bash" ] && source "$HOME/.fzf_scripts/completion.bash"
-[ -f "$HOME/.fzf_scripts/key-bindings.bash" ] && source "$HOME/.fzf_scripts/key-bindings.bash"
+if command -v fzf >/dev/null 2>&1; then
+    eval "$(fzf --bash)"
+    export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}' --height 40% --layout=reverse --border"
+elif [ "$INSTALL_FZF" = "true" ]; then
+    echo "fzf not found. To install, run: install-fzf"
+fi
+
+install-fzf() {
+    if command -v fzf >/dev/null 2>&1; then
+        echo "fzf is already installed."
+        return 0
+    fi
+    local version url tmpfile
+    version=$(curl -s "https://api.github.com/repos/junegunn/fzf/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
+    if [ -z "$version" ]; then
+        echo "Error: could not determine latest fzf version."
+        return 1
+    fi
+    url="https://github.com/junegunn/fzf/releases/download/${version}/fzf-${version#v}-linux_amd64.tar.gz"
+    tmpfile=$(mktemp /tmp/fzf.XXXXXX.tar.gz)
+    echo "==> Downloading fzf ${version}..."
+    curl -Lo "$tmpfile" "$url" || { rm -f "$tmpfile"; return 1; }
+    echo "==> Installing to ~/.local/bin..."
+    mkdir -p ~/.local/bin
+    tar -xzf "$tmpfile" -C ~/.local/bin fzf
+    rm -f "$tmpfile"
+    echo "fzf installed. Restart your shell to activate."
+}
 
 dotf() {
     if [ $# -eq 0 ] || [ "$1" = "help" ]; then

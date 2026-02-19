@@ -18,6 +18,7 @@ if status is-interactive
     set -q TMUX_SESSION_NAME; or set -g TMUX_SESSION_NAME main
     set -q SETUP_KEYCHAIN; or set -g SETUP_KEYCHAIN false
     set -q KEYCHAIN_KEYS; or set -g KEYCHAIN_KEYS ~/.ssh/id_rsa_github
+    set -q INSTALL_FZF; or set -g INSTALL_FZF true
     set -q INSTALL_NVIM; or set -g INSTALL_NVIM true
 
     # PATH
@@ -29,6 +30,33 @@ if status is-interactive
         for p in (string split ':' -- $EXTRA_PATH)
             fish_add_path $p
         end
+    end
+
+    # Check for fzf and offer to install if missing
+    if test "$INSTALL_FZF" = true; and not type -q fzf
+        echo "fzf not found. To install, run: install-fzf"
+    end
+
+    function install-fzf
+        if type -q fzf
+            echo "fzf is already installed."
+            return 0
+        end
+        set -l version (curl -s "https://api.github.com/repos/junegunn/fzf/releases/latest" | string match -r '"tag_name": "([^"]*)"' | tail -1)
+        if test -z "$version"
+            echo "Error: could not determine latest fzf version."
+            return 1
+        end
+        set -l url "https://github.com/junegunn/fzf/releases/download/$version/fzf-"(string replace 'v' '' $version)"-linux_amd64.tar.gz"
+        set -l tmpfile (mktemp /tmp/fzf.XXXXXX.tar.gz)
+        echo "==> Downloading fzf $version..."
+        curl -Lo $tmpfile $url
+        or begin; rm -f $tmpfile; return 1; end
+        echo "==> Installing to ~/.local/bin..."
+        mkdir -p ~/.local/bin
+        tar -xzf $tmpfile -C ~/.local/bin fzf
+        rm -f $tmpfile
+        echo "fzf installed. Restart your shell to activate."
     end
 
     # Check for Neovim and offer to install if missing
@@ -54,14 +82,12 @@ if status is-interactive
     end
 
     # fzf integration
-    fzf_key_bindings
-
-    # Use bat for fzf previews
-    set -x FZF_DEFAULT_OPTS "--preview 'bat --style=numbers --color=always --line-range :500 {}'"
-
-    # Use ripgrep for fzf if available
-    if type -q rg
-        set -x FZF_DEFAULT_COMMAND 'rg --files --hidden --glob "!.git/*"'
+    if type -q fzf
+        fzf --fish | source
+        set -x FZF_DEFAULT_OPTS "--preview 'bat --style=numbers --color=always --line-range :500 {}'"
+        if type -q rg
+            set -x FZF_DEFAULT_COMMAND 'rg --files --hidden --glob "!.git/*"'
+        end
     end
 
     # Solarized Dark: use base00 for visible autosuggestions
