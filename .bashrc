@@ -141,7 +141,7 @@ _dotf_pull() {
 # keychain - just start/inherit the agent, don't preload keys
 # keys are added on first use via AddKeysToAgent in ssh config
 if [ "$SETUP_KEYCHAIN" = "true" ]; then
-    eval "$(keychain --eval --inherit any --noask)"
+    eval "$(keychain --eval)"
 fi
 
 # Auto-launch tmux
