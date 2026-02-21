@@ -13,7 +13,6 @@ fi
 : "${AUTOSTART_TMUX:=true}"
 : "${TMUX_SESSION_NAME:=main}"
 : "${SETUP_KEYCHAIN:=false}"
-: "${KEYCHAIN_KEYS:=~/.ssh/id_rsa_github}"
 : "${INSTALL_FZF:=true}"
 : "${INSTALL_NVIM:=true}"
 
@@ -139,9 +138,10 @@ _dotf_pull() {
     $git_cmd merge "$upstream"
 }
 
-# Keychain for SSH key management
+# keychain - just start/inherit the agent, don't preload keys
+# keys are added on first use via AddKeysToAgent in ssh config
 if [ "$SETUP_KEYCHAIN" = "true" ]; then
-    eval "$(keychain --eval $KEYCHAIN_KEYS)"
+    eval "$(keychain --eval --inherit any --noask)"
 fi
 
 # Auto-launch tmux

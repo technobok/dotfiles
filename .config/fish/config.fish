@@ -19,7 +19,6 @@ if status is-interactive
     set -q AUTOSTART_TMUX; or set -g AUTOSTART_TMUX true
     set -q TMUX_SESSION_NAME; or set -g TMUX_SESSION_NAME main
     set -q SETUP_KEYCHAIN; or set -g SETUP_KEYCHAIN false
-    set -q KEYCHAIN_KEYS; or set -g KEYCHAIN_KEYS ~/.ssh/id_rsa_github
     set -q INSTALL_FZF; or set -g INSTALL_FZF true
     set -q INSTALL_NVIM; or set -g INSTALL_NVIM true
 
@@ -182,13 +181,10 @@ if status is-interactive
         $git_cmd merge "$upstream"
     end
 
-    # Keychain for SSH key management
+    # keychain - just start/inherit the agent, don't preload keys
+    # keys are added on first use via AddKeysToAgent in ssh config
     if test "$SETUP_KEYCHAIN" = true
-        keychain --eval (string split ' ' -- $KEYCHAIN_KEYS) | source
-        set -l keychain_env "$HOME/.keychain/"(hostname)"-fish"
-        if test -f "$keychain_env"
-            source "$keychain_env"
-        end
+        keychain --eval --inherit any --noask | source
     end
 
     # Auto-launch tmux
