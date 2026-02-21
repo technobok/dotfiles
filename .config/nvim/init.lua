@@ -40,6 +40,14 @@ vim.wo.signcolumn = 'yes'
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- force picodoc for .pdoc
+vim.filetype.add({
+    extension = {
+        pdoc = "picodoc",
+    },
+})
+
+
 -- Lazy.nvim Bootstrap
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -388,3 +396,14 @@ end, { desc = 'LSP Hover or Man Page' })
 
 -- start oil on parent (same as vim-vinegar)
 vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+
+-- picodoc 
+vim.opt.runtimepath:append("~/dev/picodoc/editor/nvim")
+vim.lsp.config("picodoc", {
+  -- expand to get home dir from ~
+  cmd = { vim.fn.expand("~/dev/picodoc/.venv/bin/picodoc-lsp") },
+  --cmd = { "~/dev/picodoc/.venv/bin/picodoc-lsp" },
+  filetypes = { "picodoc" },
+  root_markers = { "picodoc.toml", "pyproject.toml" },
+})
+vim.lsp.enable("picodoc")
