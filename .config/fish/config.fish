@@ -184,7 +184,7 @@ if status is-interactive
     # keychain - just start/inherit the agent, don't preload keys
     # keys are added on first use via AddKeysToAgent in ssh config
     if test "$SETUP_KEYCHAIN" = true
-        keychain --eval --inherit any --noask | source
+        keychain --eval | source
     end
 
     # Auto-launch tmux
