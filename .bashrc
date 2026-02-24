@@ -25,6 +25,7 @@ if [ -n "$EXTRA_PATH" ]; then
 fi
 
 # Environment
+export XDG_CONFIG_HOME="$HOME/.config"
 export TZ=Australia/Brisbane
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8

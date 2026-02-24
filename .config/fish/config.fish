@@ -95,6 +95,7 @@ if status is-interactive
     # Solarized Dark: use base00 for visible autosuggestions
     set -g fish_color_autosuggestion 657b83
 
+    set -x XDG_CONFIG_HOME $HOME/.config
     set -x TZ Australia/Brisbane
 
     alias n="nvim"
