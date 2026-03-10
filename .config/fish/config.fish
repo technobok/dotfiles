@@ -3,6 +3,18 @@
 set -g fish_greeting
 
 if status is-interactive
+
+    # Force-set the runtime directory
+    set -gx XDG_RUNTIME_DIR /run/user/(id -u)
+
+    # If the bus is missing, try to trigger the systemd socket activation
+    if not test -S $XDG_RUNTIME_DIR/bus
+        systemctl --user start dbus.socket >/dev/null 2>&1
+    end
+
+    # Set the bus address so tools can find it
+    set -gx DBUS_SESSION_BUS_ADDRESS unix:path=$XDG_RUNTIME_DIR/bus
+
     # Read ~/.config/env.conf into fish variables (skip comments and blank lines)
     set -l conf_file ~/.config/dotf/env.conf
     if test -f $conf_file
