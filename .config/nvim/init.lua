@@ -147,6 +147,13 @@ require("lazy").setup({
         -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
         lazy = false,
     },
+    -- Zerolang LSP
+    {
+        dir = "~/dev/zerolang/editor/nvim",
+        config = function()
+            require("zerolang.lsp").setup()
+        end,
+    },
     read_conf("GEMINI_NVIM") == "true" and {
         "marcinjahn/gemini-cli.nvim",
         cmd = "Gemini",
@@ -407,3 +414,4 @@ vim.lsp.config("picodoc", {
   root_markers = { "picodoc.toml", "pyproject.toml" },
 })
 vim.lsp.enable("picodoc")
+
