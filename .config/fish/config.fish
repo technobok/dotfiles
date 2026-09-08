@@ -198,6 +198,8 @@ if status is-interactive
     # keys are added on first use via AddKeysToAgent in ssh config
     if test "$SETUP_KEYCHAIN" = true
         keychain --eval | source
+	set -e SSH_ASKPASS
+	set -gx SSH_ASKPASS_REQUIRE never
     end
 
     # Auto-launch tmux
