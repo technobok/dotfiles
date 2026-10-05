@@ -260,6 +260,17 @@ require('lualine').setup {
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
+    preview = {
+        -- The previewer detects filetypes with plenary.filetype, which knows 
+        -- nothing of vim.filetype.add / ftdetect: .z and .pdoc came out with no 
+        -- filetype and so no highlighting. Fall back to Neovim's own detection. 
+        filetype_hook = function(filepath, bufnr, opts)
+            if not opts.ft or opts.ft == "" then
+                opts.ft = vim.filetype.match({ filename = filepath }) or "" 
+            end 
+            return true 
+        end, 
+    },
     mappings = {
       n = {
     	  ['<c-d>'] = require('telescope.actions').delete_buffer
